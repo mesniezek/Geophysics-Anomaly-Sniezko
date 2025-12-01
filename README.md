@@ -1,0 +1,1 @@
+# Geophysics-Anomaly-Sniezko
