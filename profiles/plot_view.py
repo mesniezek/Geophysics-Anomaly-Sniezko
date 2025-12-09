@@ -41,9 +41,12 @@ class PlotView(QWidget):
             main.statusBar().showMessage("Brak współrzędnych georeferencji!")
             return
 
-        meter_to_deg = 1 / (111320 * math.cos(math.radians(start_lat)))
+        delta = 0
+        if hasattr(main, "profile_deltas") and main.profile_deltas:
+            delta = main.profile_deltas[-1]
 
-        anomaly_lat = start_lat
+        meter_to_deg = 1 / (111320 * math.cos(math.radians(start_lat)))
+        anomaly_lat = start_lat + delta * (1 / 111320)
         anomaly_lon = start_lon + x_val * meter_to_deg
 
         main.map_view.add_anomaly(anomaly_lat, anomaly_lon)

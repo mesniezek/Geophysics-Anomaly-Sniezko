@@ -19,26 +19,18 @@ class MapView(QWidget):
         self._refresh()
         layout.addWidget(self.view)
 
-    def draw_profile(self, distances, start_lat, start_lon, delta = 0):
+    def draw_profile(self, distances, start_lat, start_lon, delta):
         meter_to_deg = 1 / (111320 * math.cos(math.radians(start_lat)))
+        points = [(start_lat, start_lon + d * meter_to_deg) for d in distances]
 
-        points = []
-        for d in distances:
-            lon = start_lon + d * meter_to_deg
-            lat = start_lat
-            points.append((lat, lon))
-
-        self.map_obj = folium.Map(location=[start_lat, start_lon], zoom_start=19)
-        folium.PolyLine(points, color="blue", weight=4).add_to(self.map_obj)
-
-        delta_m = 5
-        meter_to_deg_lat = 1 / 111320  # przelicznik metrów na stopnie szerokości geograficznej
-
-        # Tworzymy nową listę punktów przesuniętych w pionie
-        shifted_points = [(lat + delta_m * meter_to_deg_lat, lon) for lat, lon in points]
-
-        # Rysujemy nowy wykres przesunięty
-        folium.PolyLine(shifted_points, color="green", weight=4).add_to(self.map_obj)
+        if delta == 0:
+            self.map_obj = folium.Map(location=[start_lat, start_lon], zoom_start=19)
+            folium.PolyLine(points, color="blue", weight=4).add_to(self.map_obj)
+        else:
+            delta_m = delta
+            meter_to_deg_lat = 1 / 111320
+            shifted_points = [(lat + delta_m * meter_to_deg_lat, lon) for lat, lon in points]
+            folium.PolyLine(shifted_points, color="blue", weight=4).add_to(self.map_obj)
 
         self._refresh()
 

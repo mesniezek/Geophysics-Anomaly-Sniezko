@@ -10,6 +10,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.anomaly_mode = False
+        self.profile_start_x = 50.07217314126216
+        self.profile_start_y = 19.94379250849782
+        self.profile_deltas = []
         self.setWindowTitle("Analiza anomalii geofizycznych - prototyp")
         self.setGeometry(200, 150, 1200, 700)
 
@@ -31,7 +34,7 @@ class MainWindow(QMainWindow):
         plik_menu.addAction(import_action)
 
         import_action = QAction("Importuj kolejny profil", self)
-        import_action.triggered.connect(lambda: data_loader.open_import_dialog(self, self.plot_view))
+        import_action.triggered.connect(lambda: data_loader.open_import_dialog(self, self.plot_view, 3))
         plik_menu.addAction(import_action)
 
         add_anomaly_action = QAction("Nałóż anomalie", self)

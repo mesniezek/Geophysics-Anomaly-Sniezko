@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QPushButton, QFileDialog, QHBoxLayout, QLineEdit
 )
 import pandas as pd
+from folium import folium
 
 
 class CsvImportDialog(QDialog):
@@ -60,7 +61,7 @@ class CsvImportDialog(QDialog):
             self.file_edit.setText(path)
 
 
-def open_csv_import_dialog(parent, plot_view):
+def open_csv_import_dialog(parent, plot_view, delta):
     dialog = CsvImportDialog(parent)
     if dialog.exec_() != QDialog.Accepted:
         return
@@ -96,7 +97,17 @@ def open_csv_import_dialog(parent, plot_view):
         y = pd.to_numeric(df.iloc[:, 2], errors='coerce').values
 
     plot_view.set_data(x_distance, y)
-    if hasattr(parent, "profile_start_x") and hasattr(parent, "profile_start_y"):
-        parent.map_view.draw_profile(x_distance, parent.profile_start_x, parent.profile_start_y)
-    else:
+
+    start_lat = getattr(parent, "profile_start_x", None)
+    start_lon = getattr(parent, "profile_start_y", None)
+
+    if start_lat is None or start_lon is None:
         parent.statusBar().showMessage("Profil wczytany, ale brak współrzędnych startowych!")
+        return
+
+    if delta == 0:
+        parent.map_view.map_obj = folium.Map(location=[start_lat, start_lon], zoom_start=19)
+        parent.profile_deltas = [0]
+    else:
+        parent.profile_deltas.append(delta)
+    parent.map_view.draw_profile(x_distance, start_lat, start_lon, delta)
