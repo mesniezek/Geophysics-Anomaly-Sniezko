@@ -1,49 +1,74 @@
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-
+import math
 
 class PlotView(QWidget):
-    """
-    Widżet wyświetlający wykresy za pomocą Matplotlib.
-    Zawiera logikę do ustawiania i odświeżania danych profilu.
-    """
+    anomaly_clicked = pyqtSignal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         layout = QVBoxLayout(self)
 
-        # Stworzenie obszaru rysowania (Canvas) i figury Matplotlib
         self.canvas = FigureCanvasQTAgg(Figure())
-        # Dodanie podwykresu (osi) do figury
         self.ax = self.canvas.figure.add_subplot(111)
-
-        # Ustawienie domyślnych etykiet i tytułu
-        self.ax.set_title("Wykres amplitudy")
-        self.ax.set_xlabel("Odległość od pierwszego punktu [m]")
-        self.ax.set_ylabel("Amplituda")
 
         layout.addWidget(self.canvas)
 
-    def set_data(self, x, y):
-        """
-        Czyści aktualny wykres i rysuje nowy profil (x, y).
+        self.canvas.mpl_connect("button_press_event", self.on_click)
 
-        :param x: Dane dla osi X (Odległość od pierwszego punktu).
-        :param y: Dane dla osi Y (Amplituda).
-        """
-        self.ax.clear()  # Wyczyść poprzedni wykres
-
-        # Ponowne ustawienie tytułu i etykiet po czyszczeniu
         self.ax.set_title("Wykres amplitudy")
-        self.ax.set_xlabel("Odległość od pierwszego punktu [m]")
+        self.ax.set_xlabel("Odległość [m]")
         self.ax.set_ylabel("Amplituda")
 
-        # Rysowanie danych (linia niebieska)
-        self.ax.plot(x, y, "b-")
+    def on_click(self, event):
+        main = self.window()
 
-        # Automatyczne skalowanie osi do nowych danych
-        self.ax.autoscale(enable=True, axis='both', tight=False)
+        if not getattr(main, "anomaly_mode", False):
+            return
 
-        self.canvas.draw()  # Odświeżenie widoku
+        if event.button != 1 or event.xdata is None:
+            return
+
+        x_val = float(event.xdata)
+
+        start_lat = getattr(main, "profile_start_x", None)
+        start_lon = getattr(main, "profile_start_y", None)
+
+        if start_lat is None or start_lon is None:
+            main.statusBar().showMessage("Brak współrzędnych georeferencji!")
+            return
+
+        meter_to_deg = 1 / (111320 * math.cos(math.radians(start_lat)))
+
+        anomaly_lat = start_lat
+        anomaly_lon = start_lon + x_val * meter_to_deg
+
+        main.map_view.add_anomaly(anomaly_lat, anomaly_lon)
+
+        main.statusBar().showMessage(
+            f"Dodano anomalie w X={round(x_val, 2)} m → GPS: ({anomaly_lat}, {anomaly_lon})"
+        )
+
+    def set_data(self, x, y):
+        try:
+            self.ax.clear()
+            self.ax.set_title("Wykres amplitudy")
+            self.ax.set_xlabel("Odległość od pierwszego punktu [m]")
+            self.ax.set_ylabel("Amplituda")
+
+            self.ax.plot(x, y, "b-")
+
+            self.ax.relim()
+            self.ax.autoscale_view()
+            self.canvas.draw()
+        except Exception as e:
+            try:
+                parent = self.parent()
+                if hasattr(parent, "statusBar"):
+                    parent.statusBar().showMessage(f"Błąd rysowania wykresu: {e}")
+            except Exception:
+                pass
+            raise
