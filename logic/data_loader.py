@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QLineEdit
-from logic import csv_import
+from logic import profile_import
 
-
+# noinspection PyUnresolvedReferences
 class ImportDialog(QDialog):
     def __init__(self, parent=None, plot_view=None, ask_delta=False):
         super().__init__(parent)
@@ -61,7 +61,7 @@ def open_import_dialog(parent, plot_view, delta=None):
     delta_value = dialog.get_delta() if ask_delta else 0.0
     delta_reference = dialog.get_delta_reference() if ask_delta else 0
 
-    if selection == "Plik .csv":
-        csv_import.open_csv_import_dialog(parent, plot_view, delta_value, delta_reference)
+    if selection in ["Plik .csv", "Plik .dat"]:
+        profile_import.import_profile_data(parent, plot_view, delta_value, delta_reference, selection)
     else:
         parent.statusBar().showMessage(f"Wybrano: {selection} (obsługa w przygotowaniu)")

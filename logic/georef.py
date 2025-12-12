@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton
 
+# noinspection PyUnresolvedReferences
 class CoordinateSystemDialog(QDialog):
     def __init__(self):
         super().__init__()
