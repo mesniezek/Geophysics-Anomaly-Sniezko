@@ -4,6 +4,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import math
 
+
 class PlotView(QWidget):
     anomaly_clicked = pyqtSignal(float)
 
@@ -36,23 +37,42 @@ class PlotView(QWidget):
 
         start_lat = getattr(main, "profile_start_x", None)
         start_lon = getattr(main, "profile_start_y", None)
+        azimuth = getattr(main, "profile_azimuth", 90.0)
 
         if start_lat is None or start_lon is None:
             main.statusBar().showMessage("Brak współrzędnych georeferencji!")
             return
 
-        delta = 0
-        if hasattr(main, "profile_deltas") and main.profile_deltas:
-            delta = main.profile_deltas[-1]
+        angle_rad = math.radians(azimuth)
 
-        meter_to_deg = 1 / (111320 * math.cos(math.radians(start_lat)))
-        anomaly_lat = start_lat + delta * (1 / 111320)
-        anomaly_lon = start_lon + x_val * meter_to_deg
+        distance = x_val
+
+        dx_lat_meters = distance * math.cos(angle_rad)
+        dy_lon_meters = distance * math.sin(angle_rad)
+
+        total_delta = sum(getattr(main, "profile_deltas", [0]))
+
+        perp_angle_rad = math.radians(azimuth + 90)
+
+        perp_lat_meters = total_delta * math.cos(perp_angle_rad)
+        perp_lon_meters = total_delta * math.sin(perp_angle_rad)
+
+        meter_to_deg_lat = 1 / 111320
+        meter_to_deg_lon = 1 / (111320 * math.cos(math.radians(start_lat)))
+
+        anomaly_lat = start_lat
+        anomaly_lon = start_lon
+
+        anomaly_lat += dx_lat_meters * meter_to_deg_lat
+        anomaly_lon += dy_lon_meters * meter_to_deg_lon
+
+        anomaly_lat += perp_lat_meters * meter_to_deg_lat
+        anomaly_lon += perp_lon_meters * meter_to_deg_lon
 
         main.map_view.add_anomaly(anomaly_lat, anomaly_lon)
 
         main.statusBar().showMessage(
-            f"Dodano anomalie w X={round(x_val, 2)} m → GPS: ({anomaly_lat}, {anomaly_lon})"
+            f"Dodano anomalie w X={round(x_val, 2)} m → GPS: ({round(anomaly_lat, 6)}, {round(anomaly_lon, 6)})"
         )
 
     def set_data(self, x, y):
