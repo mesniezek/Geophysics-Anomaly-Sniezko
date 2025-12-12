@@ -4,7 +4,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import math
 
-
+# noinspection PyUnresolvedReferences
 class PlotView(QWidget):
     anomaly_clicked = pyqtSignal(float)
 
@@ -75,12 +75,12 @@ class PlotView(QWidget):
             f"Dodano anomalie w X={round(x_val, 2)} m → GPS: ({round(anomaly_lat, 6)}, {round(anomaly_lon, 6)})"
         )
 
-    def set_data(self, x, y):
+    def set_data(self, x, y, y_axis_title="Wartości Y"):
         try:
             self.ax.clear()
             self.ax.set_title("Wykres amplitudy")
             self.ax.set_xlabel("Odległość od pierwszego punktu [m]")
-            self.ax.set_ylabel("Amplituda")
+            self.ax.set_ylabel(y_axis_title)
 
             self.ax.plot(x, y, "b-")
 
