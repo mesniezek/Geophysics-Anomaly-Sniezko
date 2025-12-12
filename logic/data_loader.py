@@ -9,7 +9,7 @@ class ImportDialog(QDialog):
         self.delta_value = 0.0
 
         self.setWindowTitle("Import danych")
-        self.setFixedSize(300, 200 if ask_delta else 150)
+        self.setFixedSize(300, 250 if ask_delta else 150)
 
         layout = QVBoxLayout(self)
 
@@ -27,6 +27,13 @@ class ImportDialog(QDialog):
             self.delta_edit.setText("5")
             layout.addWidget(self.delta_edit)
 
+            ref_label = QLabel("Delta podana jest od profilu:")
+            layout.addWidget(ref_label)
+            self.delta_ref_box = QComboBox()
+            self.delta_ref_box.addItems(
+                ["Ostatnio dodanego (przesunięcie relatywne)", "Pierwszego (przesunięcie absolutne)"])
+            layout.addWidget(self.delta_ref_box)
+
         ok_button = QPushButton("OK")
         ok_button.clicked.connect(self.accept)
         layout.addWidget(ok_button)
@@ -36,9 +43,13 @@ class ImportDialog(QDialog):
 
     def get_delta(self):
         try:
-            return float(self.delta_edit.text())
+            return float(getattr(self, 'delta_edit', QLineEdit("0.0")).text())
         except Exception:
             return 0.0
+
+    def get_delta_reference(self):
+        return getattr(self, 'delta_ref_box', QComboBox()).currentIndex()
+
 
 def open_import_dialog(parent, plot_view, delta=None):
     ask_delta = delta is not None
@@ -48,8 +59,9 @@ def open_import_dialog(parent, plot_view, delta=None):
 
     selection = dialog.get_selection()
     delta_value = dialog.get_delta() if ask_delta else 0.0
+    delta_reference = dialog.get_delta_reference() if ask_delta else 0
 
     if selection == "Plik .csv":
-        csv_import.open_csv_import_dialog(parent, plot_view, delta_value)
+        csv_import.open_csv_import_dialog(parent, plot_view, delta_value, delta_reference)
     else:
         parent.statusBar().showMessage(f"Wybrano: {selection} (obsługa w przygotowaniu)")

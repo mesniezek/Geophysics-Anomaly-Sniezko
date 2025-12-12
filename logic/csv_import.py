@@ -60,8 +60,7 @@ class CsvImportDialog(QDialog):
             self.file_path = path
             self.file_edit.setText(path)
 
-
-def open_csv_import_dialog(parent, plot_view, delta):
+def open_csv_import_dialog(parent, plot_view, delta, delta_reference=0):
     dialog = CsvImportDialog(parent)
     if dialog.exec_() != QDialog.Accepted:
         return
@@ -100,14 +99,23 @@ def open_csv_import_dialog(parent, plot_view, delta):
 
     start_lat = getattr(parent, "profile_start_x", None)
     start_lon = getattr(parent, "profile_start_y", None)
+    azimuth = getattr(parent, "profile_azimuth", 90.0)
 
-    if start_lat is None or start_lon is None:
-        parent.statusBar().showMessage("Profil wczytany, ale brak współrzędnych startowych!")
-        return
+    current_profile_deltas = getattr(parent, "profile_deltas", [])
+    total_delta = 0.0
 
     if delta == 0:
         parent.map_view.map_obj = folium.Map(location=[start_lat, start_lon], zoom_start=19)
         parent.profile_deltas = [0]
+        total_delta = 0
     else:
-        parent.profile_deltas.append(delta)
-    parent.map_view.draw_profile(x_distance, start_lat, start_lon, delta)
+
+        if delta_reference == 0:
+            total_delta = sum(current_profile_deltas) + delta
+            parent.profile_deltas.append(delta)
+
+        elif delta_reference == 1:
+            total_delta = delta
+            parent.profile_deltas = [total_delta]
+
+    parent.map_view.draw_profile(x_distance, start_lat, start_lon, azimuth, total_delta)
