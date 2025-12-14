@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QLineEdit, QMessageBox
 from logic import profile_import
 
 # noinspection PyUnresolvedReferences
@@ -42,26 +42,46 @@ class ImportDialog(QDialog):
         return self.select_box.currentText()
 
     def get_delta(self):
-        try:
-            return float(getattr(self, 'delta_edit', QLineEdit("0.0")).text())
-        except Exception:
-            return 0.0
+        return getattr(self, 'delta_edit', QLineEdit("0.0")).text()
 
     def get_delta_reference(self):
         return getattr(self, 'delta_ref_box', QComboBox()).currentIndex()
 
 
-def open_import_dialog(parent, plot_view, delta=None):
-    ask_delta = delta is not None
-    dialog = ImportDialog(parent=parent, plot_view=plot_view, ask_delta=ask_delta)
-    if dialog.exec_() != QDialog.Accepted:
-        return
+def open_import_dialog(parent, plot_view, delta_default=None):
+    ask_delta = delta_default is not None
 
-    selection = dialog.get_selection()
-    delta_value = dialog.get_delta() if ask_delta else 0.0
-    delta_reference = dialog.get_delta_reference() if ask_delta else 0
+    while True:
+        dialog = ImportDialog(parent=parent, plot_view=plot_view, ask_delta=ask_delta)
+        if dialog.exec_() != QDialog.Accepted:
+            return
 
-    if selection in ["Plik .csv", "Plik .dat"]:
-        profile_import.import_profile_data(parent, plot_view, delta_value, delta_reference, selection)
-    else:
-        parent.statusBar().showMessage(f"Wybrano: {selection} (obsługa w przygotowaniu)")
+        selection = dialog.get_selection()
+
+        if ask_delta:
+            delta_str = dialog.get_delta()
+            delta_reference = dialog.get_delta_reference()
+
+            try:
+                cleaned_str = delta_str.replace(',', '.')
+                delta_value = float(cleaned_str)
+
+            except ValueError:
+                QMessageBox.critical(
+                    parent,
+                    "Błąd wprowadzania delty",
+                    f"Wartość '{delta_str}' podana dla Delty nie jest poprawną liczbą."
+                    f"\nProszę używać kropki jako separatora dziesiętnego (np. 5.5).",
+                    QMessageBox.Ok
+                )
+                continue
+        else:
+            delta_value = 0.0
+            delta_reference = 0
+
+        if selection in ["Plik .csv", "Plik .dat"]:
+            profile_import.import_profile_data(parent, plot_view, delta_value, delta_reference, selection)
+            return
+        else:
+            parent.statusBar().showMessage(f"Wybrano: {selection} (obsługa w przygotowaniu)")
+            return
