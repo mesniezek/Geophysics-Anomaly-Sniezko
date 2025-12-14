@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QMessageBox
+
 
 # noinspection PyUnresolvedReferences
 class CoordinateSystemDialog(QDialog):
@@ -60,22 +61,40 @@ def open_coordinate_system_dialog(parent):
         x_start_str = dialog.start_x.text()
         y_start_str = dialog.start_y.text()
         azimuth_str = dialog.azimuth_edit.text()
-        x_end = dialog.end_x.text()
-        y_end = dialog.end_y.text()
+        x_end_str = dialog.end_x.text()
+        y_end_str = dialog.end_y.text()
 
+        fields_to_validate = {
+            "X start": x_start_str,
+            "Y start": y_start_str,
+            "Azymut": azimuth_str
+        }
+
+        parsed_values = {}
         try:
-            x_start = float(x_start_str)
-            y_start = float(y_start_str)
-            azimuth = float(azimuth_str)
+            for name, value_str in fields_to_validate.items():
+                cleaned_str = value_str.replace(',', '.')
+                parsed_values[name] = float(cleaned_str)
+
         except ValueError:
-            parent.statusBar().showMessage("Błąd: X, Y i Azymut muszą być liczbami w formacie 50.123456.")
-            return
+            QMessageBox.critical(
+                dialog,
+                "Błąd wprowadzania danych",
+                f"Wartość '{value_str}' podana dla pola '{name}' nie jest poprawną liczbą."
+                f"\nProszę sprawdzić, czy używasz kropki jako separatora dziesiętnego (np. 50.123).",
+                QMessageBox.Ok
+            )
+            return open_coordinate_system_dialog(parent)
+
+        x_start = parsed_values["X start"]
+        y_start = parsed_values["Y start"]
+        azimuth = parsed_values["Azymut"]
 
         message = (
             f"Wybrano: {selection}, "
             f"początek profilu: ({x_start}, {y_start}), "
             f"azymut: {azimuth}°, "
-            f"koniec profilu: ({x_end}, {y_end})."
+            f"koniec profilu: ({x_end_str}, {y_end_str})."
         )
 
         parent.profile_crs = selection
