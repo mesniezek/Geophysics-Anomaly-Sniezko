@@ -65,3 +65,17 @@ class MapView(QWidget):
         data = io.BytesIO()
         self.map_obj.save(data, close_file=False)
         self.view.setHtml(data.getvalue().decode())
+
+    def highlight_anomaly(self, points, highlight_index):
+        for p in points:
+            color = "yellow" if p["index"] == highlight_index else "red"
+            folium.CircleMarker(
+                location=[p["lat"], p["lon"]],
+                radius=6,
+                color=None,
+                fill=True,
+                fill_color=color,
+                fill_opacity=0.6
+            ).add_to(self.map_obj)
+
+        self._refresh()

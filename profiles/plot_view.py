@@ -71,6 +71,14 @@ class PlotView(QWidget):
 
         main.map_view.add_anomaly(anomaly_lat, anomaly_lon)
 
+        index = len(main.anomaly_points) + 1
+
+        main.anomaly_points.append({
+            "index": index,
+            "lat": anomaly_lat,
+            "lon": anomaly_lon
+        })
+
         main.statusBar().showMessage(
             f"Dodano anomalie w X={round(x_val, 2)} m → GPS: ({round(anomaly_lat, 6)}, {round(anomaly_lon, 6)})"
         )
