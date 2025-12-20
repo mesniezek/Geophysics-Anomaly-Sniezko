@@ -135,5 +135,7 @@ def open_import_dialog(parent, plot_view, delta_default=None):
             parent.raster_view.hide()
             parent.plot_view.show()
 
+            parent.splitter.update()
+
             profile_import.import_profile_data(parent, plot_view, delta_value, delta_reference, selection)
             return

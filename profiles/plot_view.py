@@ -87,6 +87,9 @@ class PlotView(QWidget):
 
     def set_data(self, x, y, y_axis_title="Wartości Y"):
         try:
+            if self.canvas.width() <= 0 or self.canvas.height() <= 0:
+                self.canvas.resize(400, 300)
+
             self.ax.clear()
             self.ax.set_title("Wykres amplitudy")
             self.ax.set_xlabel("Odległość od pierwszego punktu [m]")

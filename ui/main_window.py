@@ -64,6 +64,7 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(Qt.Horizontal)
 
         self.plot_view = PlotView(self)
+        self.plot_view.setMinimumSize(450, 450)  # Dodaj minimalny rozmiar
         self.raster_view = RasterView(self)
         self.raster_view.hide()
 
@@ -73,9 +74,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.raster_view)
         self.splitter.addWidget(self.map_view)
 
-        self.splitter.setStretchFactor(0, 1)
-        self.splitter.setStretchFactor(1, 1)
-        self.splitter.setStretchFactor(2, 1)
+        self.splitter.setSizes([500, 500, 700])
 
         self.setCentralWidget(self.splitter)
 
