@@ -76,7 +76,9 @@ class PlotView(QWidget):
         main.anomaly_points.append({
             "index": index,
             "lat": anomaly_lat,
-            "lon": anomaly_lon
+            "lon": anomaly_lon,
+            "depth": 0.0,
+            "type": "NIEZNANY"
         })
 
         main.statusBar().showMessage(
