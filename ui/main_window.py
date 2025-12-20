@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from profiles.plot_view import PlotView
 from maps.map_view import MapView
 from logic import data_loader, georef
+from ui.anomaly_points_dialog import AnomalyPointsDialog
 
 # noinspection PyUnresolvedReferences
 class MainWindow(QMainWindow):
@@ -15,6 +16,7 @@ class MainWindow(QMainWindow):
         self.profile_deltas = []
         self.setWindowTitle("Analiza anomalii geofizycznych - prototyp")
         self.setGeometry(200, 150, 1200, 700)
+        self.anomaly_points = []
 
         self._setup_menubar()
         self._setup_central_widget()
@@ -41,6 +43,10 @@ class MainWindow(QMainWindow):
         add_anomaly_action.triggered.connect(self.enable_anomaly_mode)
         plik_menu.addAction(add_anomaly_action)
 
+        points_action = QAction("Punkty", self)
+        points_action.triggered.connect(self.show_anomaly_points)
+        plik_menu.addAction(points_action)
+
     def _setup_central_widget(self):
         splitter = QSplitter(Qt.Horizontal)
 
@@ -62,3 +68,13 @@ class MainWindow(QMainWindow):
             self.anomaly_mode = False
             self.setWindowTitle("Analiza anomalii geofizycznych - prototyp")
             self.statusBar().showMessage("Gotowy")
+
+    def show_anomaly_points(self):
+        if not self.anomaly_points:
+            self.statusBar().showMessage("Brak zapisanych punktów anomalii")
+            return
+
+        dialog = AnomalyPointsDialog(self, self.anomaly_points)
+        dialog.exec_()
+
+        self.map_view.highlight_anomaly(self.anomaly_points, -1)
