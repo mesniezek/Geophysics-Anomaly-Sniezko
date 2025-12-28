@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem,
-    QPushButton, QHBoxLayout, QHeaderView, QLabel,
+    QPushButton, QHBoxLayout, QHeaderView, QLabel, QFileDialog
 )
 from PyQt5.QtCore import pyqtSignal
+from ui.export_dialog import ExportOptionsDialog
+from logic.exporter import export_to_geojson
 
 # noinspection PyUnresolvedReferences
 class AnomalyPointsDialog(QDialog):
@@ -16,7 +18,7 @@ class AnomalyPointsDialog(QDialog):
         self.is_linking_mode = False
 
         self.setWindowTitle("Punkty anomalii")
-        self.setMinimumSize(500, 350)
+        self.setMinimumSize(600, 400)
 
         layout = QVBoxLayout(self)
 
@@ -57,16 +59,20 @@ class AnomalyPointsDialog(QDialog):
         self.finish_link_btn.clicked.connect(self.finish_linking)
         self.finish_link_btn.setEnabled(False)
 
-        self.show_map_btn = QPushButton("Pokaż te punkty na mapie")
+        self.export_btn = QPushButton("Eksportuj GIS")
+        self.export_btn.clicked.connect(self.handle_export)
+        self.export_btn.setEnabled(len(getattr(self.parent_ref, 'all_connections', [])) > 0)
+
+        self.show_map_btn = QPushButton("Pokaż na mapie")
         self.show_map_btn.clicked.connect(self.on_show_map_clicked)
 
         self.close_btn = QPushButton("Zamknij")
-        self.close_btn.clicked.connect(self.on_show_map_clicked)
         self.close_btn.clicked.connect(self.accept)
 
         btn_layout.addWidget(self.start_link_btn)
         btn_layout.addWidget(self.add_to_chain_btn)
         btn_layout.addWidget(self.finish_link_btn)
+        btn_layout.addWidget(self.export_btn)
         btn_layout.addStretch()
         btn_layout.addWidget(self.show_map_btn)
         btn_layout.addWidget(self.close_btn)
@@ -115,15 +121,40 @@ class AnomalyPointsDialog(QDialog):
     def finish_linking(self):
         if len(self.selected_chain) >= 2:
             self.parent_ref.map_view.draw_anomaly_connection(self.selected_chain)
+            if not hasattr(self.parent_ref, 'all_connections'):
+                self.parent_ref.all_connections = []
+            self.parent_ref.all_connections.append(self.selected_chain)
             self.parent_ref.statusBar().showMessage(
                 f"Narysowano połączenie między {len(self.selected_chain)} anomaliami.")
+            self.export_btn.setEnabled(True)
 
         self.is_linking_mode = False
         self.start_link_btn.setEnabled(True)
         self.add_to_chain_btn.setEnabled(False)
         self.finish_link_btn.setEnabled(False)
         self.mode_label.setText("Tryb: Przeglądanie punktów")
+        self.mode_label.setStyleSheet("")
         self.selected_chain = []
+
+    def handle_export(self):
+        exp_dialog = ExportOptionsDialog(self)
+        if exp_dialog.exec_() == QDialog.Accepted:
+            options = exp_dialog.get_options()
+            file_path, _ = QFileDialog.getSaveFileName(self, "Zapisz dane GIS", "", "GeoJSON (*.geojson)")
+            if file_path:
+                try:
+                    export_to_geojson(
+                        file_path,
+                        export_points=options['points'],
+                        export_profiles=options['profiles'],
+                        export_links=options['links'],
+                        points_data=self.points,
+                        profiles_data=self.parent_ref.map_view.profile_history,
+                        links_data=getattr(self.parent_ref, 'all_connections', [])
+                    )
+                    self.parent_ref.statusBar().showMessage(f"Wyeksportowano pomyślnie do {file_path}")
+                except Exception as e:
+                    self.parent_ref.statusBar().showMessage(f"Błąd eksportu: {e}")
 
     def on_show_map_clicked(self):
         self.show_on_map_requested.emit(self.points)

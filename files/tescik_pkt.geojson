@@ -1,0 +1,110 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 1,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.9443800252739164
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.94004660320939,
+                    50.06
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 2,
+                "type": "G\u0141\u0118BOKA",
+                "depth_m": 1.6889870991931788
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940056059595754,
+                    50.06
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 3,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.394018274985766
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940119102171515,
+                    50.06
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 4,
+                "type": "G\u0141\u0118BOKA",
+                "depth_m": 1.8184839816139198
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940139275795758,
+                    50.06
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 5,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.6932158606144848
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940032665152103,
+                    50.059901185770755
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 6,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.6932158606144848
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940092066298035,
+                    50.059901185770755
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 7,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.6932158606144848
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.940121454233395,
+                    50.059901185770755
+                ]
+            }
+        }
+    ]
+}

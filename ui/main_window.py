@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.profile_start_x = 50.07217314126216
         self.profile_start_y = 19.94379250849782
         self.profile_deltas = []
+        self.all_connections = []  # Lista przechowująca narysowane linie
         self.setWindowTitle("Analiza anomalii geofizycznych - prototyp")
         self.setGeometry(200, 150, 1200, 700)
         self.anomaly_points = []
