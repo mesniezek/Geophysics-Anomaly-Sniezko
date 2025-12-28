@@ -111,3 +111,18 @@ class MapView(QWidget):
             ).add_to(self.map_obj)
 
         self._refresh()
+
+    def draw_anomaly_connection(self, points):
+        if len(points) < 2:
+            return
+
+        line_coords = [(p['lat'], p['lon']) for p in points]
+
+        folium.PolyLine(
+            line_coords,
+            color="orange",
+            weight=3,
+            opacity=0.8
+        ).add_to(self.map_obj)
+
+        self._refresh()

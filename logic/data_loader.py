@@ -104,8 +104,6 @@ def open_import_dialog(parent, plot_view, delta_default=None):
         if dialog.exec_() != QDialog.Accepted:
             return
 
-        selection = dialog.get_selection()
-
         delta_value = 0.0
         delta_reference = 0
         if ask_delta:
@@ -115,6 +113,12 @@ def open_import_dialog(parent, plot_view, delta_default=None):
             except ValueError:
                 QMessageBox.critical(parent, "Błąd", "Wartość delty musi być liczbą.")
                 continue
+        else:
+            parent.anomaly_points = []
+            parent.map_view.profile_history = []
+            parent.profile_deltas = []
+
+        selection = dialog.get_selection()
 
         if "rastrowy" in selection:
             file_path, _ = QFileDialog.getOpenFileName(parent, "Wybierz obraz profilu", "", "Obrazy (*.jpg *.png *.jpeg)")
