@@ -1,21 +1,55 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from pyproj import Transformer
-
+import os
 
 # noinspection PyUnresolvedReferences
 class CoordinateSystemDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Współrzędne geograficzne i ich układ")
-        self.setFixedSize(450, 480)
+        self.setFixedSize(450, 350)
 
         layout = QVBoxLayout()
+        header_layout = QHBoxLayout()
 
         label = QLabel("Wybierz układ współrzędnych:")
-        layout.addWidget(label)
+        header_layout.addWidget(label)
+
+        self.help_icon = QLabel()
+
+        current_dir = os.path.dirname(__file__)
+        project_root = os.path.dirname(current_dir)
+        icon_path = os.path.join(project_root, "icons", "question.png")
+
+        pixmap = QPixmap(icon_path)
+
+        if not pixmap.isNull():
+            scaled_pixmap = pixmap.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.help_icon.setPixmap(scaled_pixmap)
+        else:
+            self.help_icon.setText("<b>(?)</b>")
+            self.help_icon.setStyleSheet("color: #0078d7;")
+
+        self.help_icon.setFixedSize(20, 20)
+        self.help_icon.setCursor(Qt.WhatsThisCursor)
+
+        help_text = (
+            "Uwaga: wpisuj liczby w formacie odpowiednim dla układu.\n"
+            "PUWG 1992 [EPSG:2180] (np. 244242.50, 567041.75)\n"
+            "PUWG 2000 [EPSG:2176-2179] (np. 5547819.82, 7423887.83)\n"
+            "WGS84 sz./dł. geogr. (np. 50.06, 19.94)\n"
+            "*Przykładowe wartości dla Krakowa w nawiasach."
+        )
+        self.help_icon.setToolTip(help_text)
+
+        header_layout.addStretch()
+        header_layout.addWidget(self.help_icon)
+        layout.addLayout(header_layout)
 
         self.select_box = QComboBox()
-        self.select_box.addItems(["WGS84", "PUWG 1992", "PUWG 2000", "Brak - lokalny"])
+        self.select_box.addItems(["PUWG 1992", "PUWG 2000", "WGS84"])
         self.select_box.currentIndexChanged.connect(self.on_crs_changed)
         layout.addWidget(self.select_box)
 
@@ -28,17 +62,6 @@ class CoordinateSystemDialog(QDialog):
 
         self.zone_label.hide()
         self.zone_box.hide()
-
-        format_label = QLabel("Uwaga: wpisuj liczby w formacie odpowiednim dla układu:")
-        layout.addWidget(format_label)
-
-        self.format_hint = QLabel(
-            "WGS84 sz./dł. geogr. (np. 50.06, 19.94)\n"
-            "PUWG 1992 [EPSG:2180] (np. 244242.50, 567041.75)\n"
-            "PUWG 2000 [EPSG:2176-2179] (np. 5547819.82, 7423887.83)\n"
-            "*Przykładowe wartości dla Krakowa w nawiasach."
-        )
-        layout.addWidget(self.format_hint)
 
         label_azimuth = QLabel("Azymut profilu (w stopniach, N=0, E=90, S=180, W=270):")
         layout.addWidget(label_azimuth)
@@ -57,16 +80,6 @@ class CoordinateSystemDialog(QDialog):
         self.start_y.setPlaceholderText("Y start")
         layout.addWidget(self.start_y)
 
-        label_end = QLabel("Punkt końcowy (X / Y) (opcjonalnie):")
-        layout.addWidget(label_end)
-        self.end_x = QLineEdit()
-        self.end_x.setPlaceholderText("X koniec")
-        layout.addWidget(self.end_x)
-
-        self.end_y = QLineEdit()
-        self.end_y.setPlaceholderText("Y koniec")
-        layout.addWidget(self.end_y)
-
         ok_button = QPushButton("OK")
         ok_button.clicked.connect(self.accept)
         layout.addWidget(ok_button)
@@ -74,7 +87,7 @@ class CoordinateSystemDialog(QDialog):
         self.setLayout(layout)
 
     def on_crs_changed(self, index):
-        if index == 2:
+        if index == 1:
             self.zone_label.show()
             self.zone_box.show()
         else:
@@ -98,7 +111,6 @@ def convert_to_wgs84(x, y, crs_name, zone_index=None):
             2: "EPSG:2178",
             3: "EPSG:2179"
         }
-
         if zone_index is None:
             zone_index = 1
 
@@ -107,8 +119,7 @@ def convert_to_wgs84(x, y, crs_name, zone_index=None):
         lon, lat = transformer.transform(y, x)
         return lat, lon
 
-    else:
-        return x, y
+    return x, y
 
 
 def open_coordinate_system_dialog(parent):

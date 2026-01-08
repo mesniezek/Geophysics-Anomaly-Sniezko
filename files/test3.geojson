@@ -1,0 +1,103 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 1,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.10837596323300734
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.94,
+                    50.059992328364565
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 3,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.8366302913023945
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.94,
+                    50.059898328364014
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 4,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.35649801306195783
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.94,
+                    50.059874564318925
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 5,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.47046564828375026
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.939930036442092,
+                    50.05996789966575
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "index": 6,
+                "type": "P\u0141YTKA",
+                "depth_m": 0.45800506697168253
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    19.939930036442092,
+                    50.05990730483436
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Polaczenie 1"
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        19.939930036442092,
+                        50.05996789966575
+                    ],
+                    [
+                        19.94,
+                        50.059992328364565
+                    ],
+                    [
+                        19.939930036442092,
+                        50.05990730483436
+                    ]
+                ]
+            }
+        }
+    ]
+}
