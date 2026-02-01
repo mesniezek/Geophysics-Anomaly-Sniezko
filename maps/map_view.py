@@ -15,8 +15,19 @@ class MapView(QWidget):
 
         self.map_obj = folium.Map(
             location=[50.07217314126216, 19.94379250849782],
-            zoom_start=19
+            zoom_start=19,
+            control_scale=True,
+            tiles=None
         )
+
+        folium.TileLayer('openstreetmap', name='Mapa drogowa (OSM)', control=True).add_to(self.map_obj)
+        folium.TileLayer(
+            tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attr='Esri',
+            name='Satelita (Esri)',
+            overlay=False
+        ).add_to(self.map_obj)
+        folium.LayerControl().add_to(self.map_obj)
 
         self._refresh()
         layout.addWidget(self.view)
@@ -89,13 +100,19 @@ class MapView(QWidget):
         folium.PolyLine(line_points, color="blue", weight=4).add_to(self.map_obj)
 
     def update_map_with_filters(self, points_to_show):
-        import folium
-
         if not self.profile_history:
             return
 
         start_p = self.profile_history[0]
-        self.map_obj = folium.Map(location=[start_p["start_lat"], start_p["start_lon"]], zoom_start=19)
+        self.map_obj = folium.Map(location=[start_p["start_lat"], start_p["start_lon"]], zoom_start=19, tiles=None)
+
+        folium.TileLayer('openstreetmap', name='Mapa drogowa (OSM)').add_to(self.map_obj)
+        folium.TileLayer(
+            tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            attr='Esri',
+            name='Satelita (Esri)',
+            overlay=False
+        ).add_to(self.map_obj)
 
         for p in self.profile_history:
             self._add_profile_to_folium(p)
@@ -110,6 +127,7 @@ class MapView(QWidget):
                 popup=f"Głębokość: {round(p['depth'], 2)}m"
             ).add_to(self.map_obj)
 
+        folium.LayerControl().add_to(self.map_obj)
         self._refresh()
 
     def draw_anomaly_connection(self, points):
